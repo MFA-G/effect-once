@@ -1,5 +1,8 @@
 # effect-once
 
+[![CI](https://github.com/samuelhuangs-jpg/effect-once/actions/workflows/ci.yml/badge.svg)](https://github.com/samuelhuangs-jpg/effect-once/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
 Run a side effect **at most once per key** — even when your scheduler fires the
 same job twice. A tiny (zero-dependency) crash-safe idempotency guard for
 **at-least-once** environments: cron supervisors that double-trigger, queue
