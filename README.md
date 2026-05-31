@@ -1,5 +1,6 @@
 # effect-once
 
+[![npm version](https://img.shields.io/npm/v/effect-once.svg)](https://www.npmjs.com/package/effect-once)
 [![CI](https://github.com/samuelhuangs-jpg/effect-once/actions/workflows/ci.yml/badge.svg)](https://github.com/samuelhuangs-jpg/effect-once/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
