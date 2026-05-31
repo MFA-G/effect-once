@@ -1,0 +1,57 @@
+{
+  "name": "effect-once",
+  "version": "0.1.0",
+  "description": "Run a side effect at most once per key — crash-safe idempotency for at-least-once schedulers (cron supervisors, queue redelivery, lambda retries).",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "idempotent",
+    "idempotency",
+    "exactly-once",
+    "at-least-once",
+    "cron",
+    "scheduler",
+    "side-effect",
+    "deduplication",
+    "retry",
+    "lock"
+  ],
+  "author": "samuelhuangs-jpg",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samuelhuangs-jpg/effect-once.git"
+  },
+  "bugs": {
+    "url": "https://github.com/samuelhuangs-jpg/effect-once/issues"
+  },
+  "homepage": "https://github.com/samuelhuangs-jpg/effect-once#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
