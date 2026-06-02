@@ -140,6 +140,46 @@ describe("OnceStore", () => {
     expect(calls).toBe(1);
   });
 
+  it("derives stable default keys for reordered plain object arguments", async () => {
+    const store = createOnceStore({ dir });
+    let calls = 0;
+    const sendOnce = store.wrap("payload", async (_message: { id: string; text: string }) => {
+      calls += 1;
+      return calls;
+    });
+
+    const first = await sendOnce({ id: "m1", text: "hello" });
+    const duplicate = await sendOnce({ text: "hello", id: "m1" });
+
+    expect(first.ran).toBe(true);
+    expect(duplicate).toMatchObject({ ran: false, reason: "already-done" });
+    expect(calls).toBe(1);
+  });
+
+  it("uses toJSON values when deriving default keys", async () => {
+    const store = createOnceStore({ dir });
+    let calls = 0;
+    const sendOnce = store.wrap("dated", async (_day: Date) => {
+      calls += 1;
+      return calls;
+    });
+
+    await sendOnce(new Date("2026-05-31T00:00:00.000Z"));
+    const next = await sendOnce(new Date("2026-06-01T00:00:00.000Z"));
+
+    expect(next.ran).toBe(true);
+    expect(calls).toBe(2);
+  });
+
+  it("requires a custom key for non-plain default-key arguments", async () => {
+    const store = createOnceStore({ dir });
+    const sendOnce = store.wrap("map", async (_value: Map<string, string>) => "sent");
+
+    await expect(sendOnce(new Map([["id", "m1"]]))).rejects.toThrow(
+      "provide a custom key",
+    );
+  });
+
   it("keeps wrapped failures retryable", async () => {
     const store = createOnceStore({ dir });
     let calls = 0;

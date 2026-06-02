@@ -163,7 +163,7 @@ export class OnceStore {
     opts: WrapOptions<Args> = {},
   ): (...args: Args) => Promise<OnceResult<T>> {
     const { key: keyFn, ...onceOpts } = opts;
-    return (...args: Args) => {
+    return async (...args: Args) => {
       const suffix = keyFn ? keyFn(...args) : stableJson(args);
       return this.once(`${prefix}:${suffix}`, () => fn(...args), onceOpts);
     };
@@ -281,16 +281,36 @@ export function createOnceStore(opts: OnceStoreOptions): OnceStore {
 }
 
 function stableJson(value: unknown): string {
-  return JSON.stringify(sortJsonValue(value));
+  return JSON.stringify(sortJsonValue(value, new WeakSet()));
 }
 
-function sortJsonValue(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(sortJsonValue);
+function sortJsonValue(value: unknown, seen: WeakSet<object>): unknown {
+  if (Array.isArray(value)) return value.map((item) => sortJsonValue(item, seen));
   if (!value || typeof value !== "object") return value;
 
+  const toJSON = (value as { toJSON?: unknown }).toJSON;
+  if (typeof toJSON === "function") {
+    return sortJsonValue(toJSON.call(value), seen);
+  }
+
+  if (seen.has(value)) {
+    throw new TypeError(
+      "Cannot derive an effect-once key from circular arguments; provide a custom key",
+    );
+  }
+
+  const proto = Object.getPrototypeOf(value);
+  if (proto !== Object.prototype && proto !== null) {
+    throw new TypeError(
+      "Cannot derive an effect-once key from non-plain arguments; provide a custom key",
+    );
+  }
+
+  seen.add(value);
   const sorted: Record<string, unknown> = {};
   for (const key of Object.keys(value).sort()) {
-    sorted[key] = sortJsonValue((value as Record<string, unknown>)[key]);
+    sorted[key] = sortJsonValue((value as Record<string, unknown>)[key], seen);
   }
+  seen.delete(value);
   return sorted;
 }
